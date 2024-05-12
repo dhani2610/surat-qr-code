@@ -1,22 +1,19 @@
 <?php
 
-use App\Http\Controllers\AgensiController;
-use App\Http\Controllers\BisnisController;
 use App\Http\Controllers\ChangePasswordController;
-use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\DepartementController;
+use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\InformasiController;
 use App\Http\Controllers\InfoUserController;
-use App\Http\Controllers\KandidatController;
-use App\Http\Controllers\KegiatanController;
+use App\Http\Controllers\JenisDokumenController;
+use App\Http\Controllers\KodeSuratController;
 use App\Http\Controllers\LogActionController;
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\ResetController;
-use App\Http\Controllers\SantriController;
-use App\Http\Controllers\SekertarisController;
 use App\Http\Controllers\SessionsController;
-use App\Http\Controllers\SuaraController;
-use App\Models\LogAction;
-use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\SuratController;
+use App\Models\Departement;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -31,29 +28,44 @@ use Illuminate\Support\Facades\Route;
 */
 Route::get('/', [HomeController::class, 'home'])->name('home');
 
-Route::post('/register', [RegisterController::class, 'store']);
-Route::get('/register-sekertaris', [RegisterController::class, 'registerSekertaris']);
-Route::get('/register-customer', [RegisterController::class, 'registerCustomer']);
+// Route::post('/register', [RegisterController::class, 'store']);
+// Route::get('/register-user', [RegisterController::class, 'create']);
+Route::get('/view-detail', [SuratController::class, 'detail'])->name('view-detail');
+Route::get('/share-qr', [SuratController::class, 'share'])->name('share-qr');
 
 
 Route::group(['middleware' => 'auth'], function () {
 
 	Route::get('/dashboard', [HomeController::class, 'dashboard'])->name('dashboard');
 
-	Route::get('/agensi-management', [AgensiController::class, 'index'])->name('agensi-management');
-	Route::post('/tambah-agensi', [AgensiController::class, 'store'])->name('tambah-agensi');
-	Route::post('/update-agensi/{id}', [AgensiController::class, 'update'])->name('update-agensi');
-	Route::get('/delete-agensi/{id}', [AgensiController::class, 'destroy'])->name('delete-agensi');
-	Route::post('/referal-update/{id}', [AgensiController::class, 'referalUpdate'])->name('referal-update');
-	Route::get('/cek-referal', [AgensiController::class, 'cekReferal'])->name('cek-referal');
-	
-	Route::get('/sekertaris-list', [SekertarisController::class, 'index'])->name('sekertaris-list');
-	Route::get('/sekertaris-detail/{id}', [SekertarisController::class, 'detail'])->name('sekertaris-detail');
-	Route::post('/updateStatus/{id}', [SekertarisController::class, 'updateStatus'])->name('updateStatus');
-	
-	Route::get('/customer-list', [CustomerController::class, 'index'])->name('customer-list');
-	Route::get('/customer-detail/{id}', [CustomerController::class, 'detail'])->name('customer-detail');
+	Route::get('/informasi', [InformasiController::class, 'index'])->name('informasi');
+	Route::post('/update-setting', [InformasiController::class, 'update'])->name('update-setting');
+	Route::post('/upload-image', [InformasiController::class, 'imageStore'])->name('upload-image');
 
+	Route::get('/hal-surat', [KodeSuratController::class, 'index'])->name('hal-surat');
+	Route::post('/tambah-hal-surat', [KodeSuratController::class, 'store'])->name('tambah-hal-surat');
+	Route::post('/update-hal-surat/{id}', [KodeSuratController::class, 'update'])->name('update-hal-surat');
+	Route::get('/delete-hal-surat/{id}', [KodeSuratController::class, 'destroy'])->name('delete-hal-surat');
+
+	Route::get('/departement', [DepartementController::class, 'index'])->name('departement');
+	Route::post('/tambah-departement', [DepartementController::class, 'store'])->name('tambah-departement');
+	Route::post('/update-departement/{id}', [DepartementController::class, 'update'])->name('update-departement');
+	Route::get('/delete-departement/{id}', [DepartementController::class, 'destroy'])->name('delete-departement');
+
+	Route::get('/log/{id}', [SuratController::class, 'logSurat'])->name('log');
+	Route::get('/surat-list', [SuratController::class, 'index'])->name('surat-list');
+	Route::get('/surat-validasi', [SuratController::class, 'indexValidasi'])->name('surat-validasi');
+	Route::get('/surat-validasi-pimpinan', [SuratController::class, 'indexValidasiPimpinan'])->name('surat-validasi-pimpinan');
+	Route::post('/tambah-surat', [SuratController::class, 'store'])->name('tambah-surat');
+	Route::post('/update-surat/{id}', [SuratController::class, 'update'])->name('update-surat');
+	Route::post('/update-file/{id}', [SuratController::class, 'updateSurat'])->name('update-file');
+	Route::get('/delete-surat/{id}', [SuratController::class, 'destroy'])->name('delete-surat');
+	Route::post('/updateStatus/{id}', [SuratController::class, 'updateStatus'])->name('updateStatus');
+	Route::post('/updateStatusPimpinan/{id}', [SuratController::class, 'updateStatusPimpinan'])->name('updateStatusPimpinan');
+	Route::get('/laporan', [SuratController::class, 'export_excel'])->name('laporan');
+	Route::get('/ajukan-kembali/{id}', [SuratController::class, 'ajukanSurat'])->name('ajukan-kembali');
+	
+	
     Route::get('/logout', [SessionsController::class, 'destroy']);
 	Route::get('/user-management', [InfoUserController::class, 'userManagement'])->name('user-management');
 	Route::post('/tambah-user', [InfoUserController::class, 'tambahUser'])->name('tambah-user');
@@ -68,15 +80,6 @@ Route::group(['middleware' => 'auth'], function () {
 
 
 	Route::post('/password-update', [ResetController::class, 'changePassword'])->name('password-update');
-	Route::get('/log-action', [LogActionController::class, 'logAction'])->name('log-action');
-
-
-	
-	Route::get('/bisnis-management', [BisnisController::class, 'index'])->name('bisnis-management');
-	Route::post('/tambah-bisnis', [BisnisController::class, 'store'])->name('tambah-bisnis');
-	Route::post('/update-bisnis/{id}', [BisnisController::class, 'update'])->name('update-bisnis');
-	Route::get('/delete-bisnis/{id}', [BisnisController::class, 'destroy'])->name('delete-bisnis');
-
 });
 
 

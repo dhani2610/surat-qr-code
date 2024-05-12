@@ -34,6 +34,7 @@ class User extends Authenticatable
         'status',
         'reason_non_aktif',
         'no_wa',
+        'id_departement',
     ];
 
     /**

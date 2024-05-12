@@ -10,11 +10,9 @@ class LogActionController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function logAction()
+    public function index()
     {
-        $data['page_title'] = 'Log Action';
-        $data['user'] = LogAction::orderBy('created_at','desc')->get();
-        return view('log-action/log-action',$data);
+        //
     }
 
     /**
